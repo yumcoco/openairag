@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Git Repository</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/images/favicon.ico" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen bg-gray-50">
+
+<!-- Git Repository Upload Modal -->
+<div class="bg-white p-6 rounded-lg shadow-lg w-96 relative fade-in">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center rounded-lg z-50">
+        <div class="spinner mb-4">
+            <svg class="h-10 w-10 text-purple-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 18V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4.93 4.93L7.76 7.76" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16.24 16.24L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M2 12H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M18 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4.93 19.07L7.76 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <p class="text-gray-600">Analyzing repository, please wait...</p>
+    </div>
+
+    <div class="flex items-center justify-center mb-6">
+        <div class="bg-purple-600 rounded-lg p-1">
+            <i class="fab fa-git-alt text-white text-2xl p-2"></i>
+        </div>
+    </div>
+
+    <h2 class="text-xl font-semibold text-center mb-6">Upload Git Repository</h2>
+
+    <form id="uploadForm">
+        <!-- Repository URL Input -->
+        <div class="mb-4">
+            <label for="repoUrl" class="block text-sm font-medium text-gray-700 mb-1">Repository URL</label>
+            <input
+                    type="text"
+                    id="repoUrl"
+                    name="repoUrl"
+                    class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="https://github.com/username/repository"
+                    required
+            />
+        </div>
+
+        <!-- Username Input -->
+        <div class="mb-4">
+            <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <input
+                    type="text"
+                    id="userName"
+                    name="userName"
+                    class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    placeholder="Enter your username"
+                    required
+            />
+        </div>
+
+        <!-- Token/Password Input -->
+        <div class="mb-6">
+            <label for="token" class="block text-sm font-medium text-gray-700 mb-1">Password/Token</label>
+            <div class="relative">
+                <input
+                        type="password"
+                        id="token"
+                        name="token"
+                        class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                        placeholder="Enter your password or token"
+                        required
+                />
+                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">For private repositories, use a personal access token</p>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+                type="submit"
+                class="w-full py-2 px-4 bg-gradient-to-r from-purple-500 to-purple-700 text-white rounded-lg hover:opacity-90 transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+        >
+            <i class="fas fa-upload mr-2"></i> Upload Repository
+        </button>
+    </form>
+
+    <!-- Status Message -->
+    <div id="status" class="text-center mt-4 font-medium text-purple-600 hidden"></div>
+</div>
+
+<script>
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const statusElement = document.getElementById('status');
+    const togglePasswordButton = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('token');
+
+    // Toggle password visibility
+    togglePasswordButton.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Toggle icon
+        this.querySelector('i').classList.toggle('fa-eye');
+        this.querySelector('i').classList.toggle('fa-eye-slash');
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const repoUrl = document.getElementById('repoUrl').value;
+        const userName = document.getElementById('userName').value;
+        const token = document.getElementById('token').value;
+
+        // Show loading overlay
+        loadingOverlay.classList.remove('hidden');
+        statusElement.classList.add('hidden');
+
+        // API call to analyze repository
+        fetch('http://188.245.233.12:8090/api/v1/rag/analyze_git_repository', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `repoUrl=${encodeURIComponent(repoUrl)}&userName=${encodeURIComponent(userName)}&token=${encodeURIComponent(token)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                loadingOverlay.classList.add('hidden');
+                statusElement.classList.remove('hidden');
+
+                if (data.code === '0000') {
+                    statusElement.textContent = 'Repository uploaded successfully!';
+                    statusElement.className = 'text-center mt-4 font-medium text-green-600';
+
+                    // Success message and close window
+                    setTimeout(() => {
+                        alert('Repository uploaded successfully! Window will close.');
+                        window.close();
+                    }, 500);
+                } else {
+                    statusElement.textContent = 'Failed to upload repository: ' + (data.info || 'Unknown error');
+                    statusElement.className = 'text-center mt-4 font-medium text-red-600';
+                }
+            })
+            .catch(error => {
+                loadingOverlay.classList.add('hidden');
+                statusElement.classList.remove('hidden');
+                statusElement.textContent = 'Error during repository upload';
+                statusElement.className = 'text-center mt-4 font-medium text-red-600';
+                console.error('Error:', error);
+            });
+    });
+</script>
+</body>
+</html>

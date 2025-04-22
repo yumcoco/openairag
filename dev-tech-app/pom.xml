@@ -122,7 +122,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>lisa.rag.dev.tech.Application</mainClass>
+                    <mainClass>lisa.rag.dev.tech.app.Application</mainClass>
                     <layout>JAR</layout>
                 </configuration>
             </plugin>

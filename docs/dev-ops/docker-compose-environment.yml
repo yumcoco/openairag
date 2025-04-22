@@ -1,12 +1,9 @@
 # docker-comopse -f docker-compose-environment.yml up -d
 version: '3'
 services:
-# Dialogue model
-# ollama pull deepseek-r1:1.5b
-# Run model
-# ollama run deepseek-r1:1.5b
-# Internet-connected model
-# ollama pull nomic-embed-text
+  # ollama pull deepseek-r1:1.5b
+  # ollama run deepseek-r1:1.5b
+  # ollama pull nomic-embed-text
   ollama:
     image: ollama/ollama:0.5.10
     container_name: ollama
@@ -32,7 +29,7 @@ services:
       timeout: 5s
       retries: 3
   # RedisAdmin https://github.com/joeferner/redis-commander
-  # admin/admin
+  # 账密 admin/admin
   redis-admin:
     image: spryker/redis-commander:0.8.0
     container_name: redis-admin
@@ -54,13 +51,13 @@ services:
         condition: service_healthy
 
   vector_db:
-    image: ankane/pgvector:latest
+    image: ankane/pgvector
     container_name: vector_db
     restart: always
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=springai
+      - POSTGRES_DB=openairag
       - PGPASSWORD=postgres
     volumes:
       - ./pgvector/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -71,7 +68,7 @@ services:
     ports:
       - '5432:5432'
     healthcheck:
-      test: "pg_isready -U postgres -d springai"
+      test: "pg_isready -U postgres -d vector_store"
       interval: 2s
       timeout: 20s
       retries: 10

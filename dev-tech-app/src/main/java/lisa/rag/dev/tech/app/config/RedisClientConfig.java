@@ -1,4 +1,4 @@
-package cn.bugstack.xfg.dev.tech.config;
+package lisa.rag.dev.tech.app.config;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Redis 客户端，使用 Redisson <a href="https://github.com/redisson/redisson">Redisson</a>
+ * Redis, Use Redisson <a href="https://github.com/redisson/redisson">Redisson</a>
  *
  */
 @Configuration
@@ -20,7 +20,7 @@ public class RedisClientConfig {
     @Bean("redissonClient")
     public RedissonClient redissonClient(ConfigurableApplicationContext applicationContext, RedisClientConfigProperties properties) {
         Config config = new Config();
-        // 根据需要可以设定编解码器；https://github.com/redisson/redisson/wiki/4.-%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97%E5%8C%96
+        // https://github.com/redisson/redisson/wiki/4.-%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97%E5%8C%96
         config.setCodec(JsonJacksonCodec.INSTANCE);
 
         config.useSingleServer()

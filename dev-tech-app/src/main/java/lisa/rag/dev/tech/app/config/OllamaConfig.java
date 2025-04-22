@@ -1,4 +1,4 @@
-package cn.bugstack.xfg.dev.tech.config;
+package lisa.rag.dev.tech.app.config;
 
 import org.springframework.ai.ollama.OllamaChatClient;
 import org.springframework.ai.ollama.OllamaEmbeddingClient;
@@ -36,26 +36,28 @@ public class OllamaConfig {
     public TokenTextSplitter tokenTextSplitter() {
         return new TokenTextSplitter();
     }
-
+//
     @Bean
-    public SimpleVectorStore vectorStore(@Value("${spring.ai.rag.embed}") String model, OllamaApi ollamaApi, OpenAiApi openAiApi) {
+    public SimpleVectorStore simpleVectorStore(@Value("${spring.ai.rag.embed}") String model, OllamaApi ollamaApi, OpenAiApi openAiApi) {
         if ("nomic-embed-text".equalsIgnoreCase(model)) {
             OllamaEmbeddingClient embeddingClient = new OllamaEmbeddingClient(ollamaApi);
             embeddingClient.withDefaultOptions(OllamaOptions.create().withModel("nomic-embed-text"));
             return new SimpleVectorStore(embeddingClient);
-        } else {
+        }
+        else {
             OpenAiEmbeddingClient embeddingClient = new OpenAiEmbeddingClient(openAiApi);
             return new SimpleVectorStore(embeddingClient);
         }
     }
-
+//
     @Bean
-    public PgVectorStore pgVectorStore(@Value("${spring.ai.rag.embed}") String model, OllamaApi ollamaApi, OpenAiApi openAiApi, JdbcTemplate jdbcTemplate) {
+    public PgVectorStore pgVectorStore(@Value("${spring.ai.rag.embed}") String model, OllamaApi ollamaApi, OpenAiApi openAiApi,JdbcTemplate jdbcTemplate) {
         if ("nomic-embed-text".equalsIgnoreCase(model)) {
             OllamaEmbeddingClient embeddingClient = new OllamaEmbeddingClient(ollamaApi);
             embeddingClient.withDefaultOptions(OllamaOptions.create().withModel("nomic-embed-text"));
             return new PgVectorStore(jdbcTemplate, embeddingClient);
-        } else {
+        }
+        else {
             OpenAiEmbeddingClient embeddingClient = new OpenAiEmbeddingClient(openAiApi);
             return new PgVectorStore(jdbcTemplate, embeddingClient);
         }
