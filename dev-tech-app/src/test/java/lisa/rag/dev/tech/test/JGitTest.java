@@ -44,7 +44,7 @@ public class JGitTest {
     public void test() throws Exception {
         String repoURL = "https://github.com/yumcoco/Muggle2wizard";
         String username = "yumcoco";
-        String password = "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";
+        String password = "XXXXX";
 
         String localPath = "./cloned-repo";
         log.info("Clone Path:" + new File(localPath).getAbsolutePath());
